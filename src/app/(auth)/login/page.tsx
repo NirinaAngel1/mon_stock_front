@@ -4,28 +4,38 @@ import FormWrapper from "@/components/FormWrapper";
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import api from "../services/api";
+import api from "../../services/api";
+import Loader from "@/components/Loader";
+import {useAuth} from "@/context/AuthContext";
 
 export default function LoginPage() {
 
+    const {login} = useAuth();
     const router = useRouter();
     const [errorsMessage, setErrorsMessage] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
     // Type clair : data contient email + password
-    const handleLogin = async (data: { email: string; password: string }) => {
+    const handleLogin = async (data: Record<string, any>) => {
         try {
             setErrorsMessage(null);
+            setLoading(true);
+
+            const email = String(data.email||"");
+            const password = String(data.password||"");
 
             const response = await api.post("/login_check", {
-                email: data.email,
-                password: data.password,
+               email, password
             });
 
-            localStorage.setItem("token", response.data.token);
+            login(response.data.token);
             router.push("/dashboard");
         } catch (error) {
             console.error(error);
-            setErrorsMessage("Échec de la connexion. Vérifiez vos identifiants.");
+            setErrorsMessage("Échec de la connexion.");
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -54,7 +64,7 @@ export default function LoginPage() {
                 onSubmit={handleLogin}
                 submitLabel="Se connecter"
             />
-
+            {loading && <Loader />}
             <div className="mt-4 text-sm text-center">
                 <p className="text-gray-600">
                     Pas encore de compte ?

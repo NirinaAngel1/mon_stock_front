@@ -2,20 +2,33 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Home, User, LogIn, LogOut, UserPlus } from "lucide-react";
+import { Menu, X, User, LogIn, LogOut, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const isAuthenticated = false; // À remplacer par la logique d'authentification réelle
+  const { isAuthenticated, logout } = useAuth();
+  const { theme, isThemeLoaded } = useTheme();
 
-  const { theme } = useTheme();
+  const router = useRouter();
+
+  if (!isThemeLoaded) {
+    return null
+  }
 
   const privateLinks = [
-    { href: "#", label: "Se déconnecter", icon: <LogOut size={18} /> },
+    { label: "Se déconnecter",
+       icon: <LogOut size={18} />,
+        action :()=>{
+          logout();
+          router.push("/");
+          }
+         },
     { href: "/profile", label: "Mon profil", icon: <User size={18} /> },
   ];
   const publicLinks = [
@@ -30,6 +43,35 @@ export default function Header() {
     open: { opacity: 1, height: "auto", transition: { duration: 0.3 } },
   };
 
+  const renderlink = (link:any)=>{
+    if (link.action){
+      return (
+        <button
+        key={link.label}
+        onClick={()=>{
+          link.action();
+          setIsOpen(false);
+        }}
+        className="flex items-center gap-2 hover:text-primary transition-colors"
+        >
+          {link.icon}
+           {link.label}
+          </button>
+      );
+    }
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        onClick={()=>setIsOpen(false)}
+        className="flex items-center gap-2 hover:text-primary transition-colors"
+      >
+        {link.icon}
+         <span>{link.label}</span>
+         </Link>
+    );
+  };
+
   return (
     <header 
     className={`bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark border-b border-primary shadow-md fixed w-full z-10`}
@@ -39,15 +81,7 @@ export default function Header() {
           <Image src={ theme === 'dark' ? "/logo-light.png" : "/logo-dark.png" } alt="logo" width={200} height={50} className="cursor-pointer" />
         </Link>
         <nav className="hidden md:flex items-center gap-8">
-          {links.map(({ href, label, icon }) => (
-            <Link
-             key={href}
-             href={href}
-             className="flex items-center gap-2 hover:text-primary transition-colors">
-              {icon}
-              <span>{label}</span>
-            </Link>
-          ))}
+          {links.map(renderlink)}
           <ThemeToggle />
         </nav>
         <button
@@ -64,19 +98,7 @@ export default function Header() {
           animate={isOpen ? "open" : "closed"}
           variants={mobileNavVariants}
         >
-          {links.map(({ href, label, icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3 py-2 text-lg"
-              onClick={() => setIsOpen(false)}
-            >
-              {icon}
-              <span>{label}</span>
-            </Link>
-          ))}
-
-          {/* Theme Toggle centered, with space below */}
+          {links.map(renderlink)}
           <div className="flex justify-center mt-2 mb-2">
             <ThemeToggle />
           </div>
