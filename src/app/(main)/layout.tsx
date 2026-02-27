@@ -1,15 +1,24 @@
+"use client";
+
+import { ReactNode } from "react";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-export default function MainLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+import { useAuth } from "@/context/AuthContext";
+
+interface MainLayoutProps{
+  children: ReactNode;
+}
+
+export default function MainLayout({children}: MainLayoutProps) {
+  const { user } = useAuth();
   return (
-    <>
-          <Header />
-          <main className="min-h-screen pt-24 md:pt-28">{children}</main>
+    <ProtectedRoute>
+      <div className="min-h-screen flex flex-col">
+          <Header user = {user}/>
+          <main className="flex-1 px-6 md:px-12 py-6 mt-28">{children}</main>
           <Footer />
-    </>
+      </div>
+    </ProtectedRoute>
   );
 }

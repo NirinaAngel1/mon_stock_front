@@ -7,6 +7,7 @@ type FormField = {
     label: string;
     type?: string;
     placeholder?: string;
+    disabled?: boolean;
 };
 
 type FormWrapperProps = {
@@ -16,6 +17,7 @@ type FormWrapperProps = {
     onSubmit: (data: Record<string, any>) => void | Promise<void>;
     submitLabel?: string;
     children?: ReactNode;
+    disabled?: boolean;
 };
 
 export default function FormWrapper({
@@ -24,12 +26,13 @@ export default function FormWrapper({
     fields,
     onSubmit,
     submitLabel = "Envoyer",
-    children
+    children,
+    disabled
 }: FormWrapperProps) {
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        if(disabled) return;
         const formData = new FormData(e.currentTarget);
         const data: Record<string, any> = {};
 
@@ -63,6 +66,7 @@ export default function FormWrapper({
                         name={field.name}
                         placeholder={field.placeholder}
                         className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary"
+                        disabled={disabled || field.disabled}
                     />
                 ) : (
                     <input
@@ -70,6 +74,7 @@ export default function FormWrapper({
                         name={field.name}
                         type={field.type || "text"}
                         placeholder={field.placeholder}
+                        disabled={disabled || field.disabled}
                         className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                 )
@@ -79,6 +84,7 @@ export default function FormWrapper({
 
             <button
                 type="submit"
+                disabled={disabled}
                 className="bg-primary hover:bg-primary-light text-white py-2 rounded transition font-medium"
             >
                 {submitLabel}

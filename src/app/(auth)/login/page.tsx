@@ -28,7 +28,7 @@ export default function LoginPage() {
                email, password
             });
 
-            login(response.data.token);
+            await login(response.data.token, response.data.refresh_token);
             router.push("/dashboard");
         } catch (error) {
             console.error(error);
@@ -40,8 +40,8 @@ export default function LoginPage() {
     };
 
     const loginFields = [
-        { name: "email", label: "Email", type: "email", placeholder: "Entrez votre email" },
-        { name: "password", label: "Password", type: "password", placeholder: "Mot de passe" }
+        { name: "email", label: "Email", type: "email", placeholder: "Entrez votre email", disabled: false },
+        { name: "password", label: "Password", type: "password", placeholder: "Mot de passe", disabled: false }
     ];
 
     return (
@@ -62,9 +62,10 @@ export default function LoginPage() {
                 title="Connexion"
                 fields={loginFields}
                 onSubmit={handleLogin}
-                submitLabel="Se connecter"
+                disabled={loading}
+                submitLabel={loading ? "connexion en cours..." : "Se connecter"}
             />
-            {loading && <Loader />}
+            {/* {loading && <Loader />} */}
             <div className="mt-4 text-sm text-center">
                 <p className="text-gray-600">
                     Pas encore de compte ?
