@@ -16,14 +16,12 @@ export const ThemeToggle = ()=>{
     return (
         <motion.button
         onClick={toggleTheme}
-        whileHover={{scale:1.1}}
-        whileTap={{scale:0.9}}
-        className="p-2 rounded-full bg-indigo-600 text-white dark:bg-indigo-700"
+        whileHover={{scale:1.05}}
+        whileTap={{scale:0.96}}
+        className="p-1 border border-border rounded-full bg-primary/10 text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        title={theme === 'dark' ? "Passer en mode clair":"Passer en mode sombre"}
         >
-            {theme === 'light' ? '🌞 Light':'🌙 Dark'}
-            <>
-            {console.log("Current theme:", theme)}
-            </>
+            {theme === 'light' ? '🌞':'🌙'}
         </motion.button>
     );
 };

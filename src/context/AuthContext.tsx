@@ -16,6 +16,7 @@ type AuthContextType = {
     isAuthenticated: boolean;
     login: (token: string, refreshToken: string) => void;
     logout: () => void;
+    loading: boolean;
 };
 
 
@@ -24,7 +25,8 @@ const AuthContext = createContext<AuthContextType>(
         user: null,
         isAuthenticated: false,
         login: async () => {},
-        logout: () => {}
+        logout: () => {},
+        loading: true,
     }
 );
 
@@ -35,6 +37,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [user, setUser] = useState<User | null>(null);
 
+    const [loading, setLoading] = useState(true);
+
     const fetchUser = async () => {
         try{
             const { data } = await api.get('/users/me');
@@ -44,6 +48,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         catch{
             setUser(null);
             setIsAuthenticated(false);
+        }finally{
+            setLoading(false);
         }
     }
     
@@ -52,6 +58,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const token = localStorage.getItem("token");
         if(token){
             fetchUser();
+        } else {
+            setLoading(false);
         }
     }, []);
 
@@ -71,7 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -3,10 +3,32 @@
 @tailwind utilities;
 
 /* Exemple optionnel: style global */
-body {
+/* body {
   @apply bg-background-light text-text-light transition-colors duration-300;
 }
 
 .dark body {
   @apply bg-background-dark text-text-dark;
+} */
+
+@layer base {
+  :root {
+  --background: 220 20% 97%;      /* #F4F5F7 */
+  --foreground: 220 40% 15%;
+  --primary: 255 60% 45%;
+  --primary-foreground: 0 0% 100%;
+  --border:220 15% 85%;
+  }
+
+  .dark {
+  --background: 240 15% 12%;      /* #1A1A22 (Gris foncé bleuté) */
+  --foreground: 210 20% 90%;
+  --primary: 255 85% 75%;
+  --primary-foreground: 240 15% 10%;
+  --border:240 10% 15%;
+  }
+}
+
+body {
+  @apply bg-background text-foreground transition-colors duration-300;
 }

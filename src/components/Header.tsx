@@ -1,143 +1,117 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { Menu, X, User, LogIn, LogOut, UserPlus, Settings, UserPen, LayoutDashboardIcon } from "lucide-react";
-import { useState } from "react";
-import { motion, Variants } from "framer-motion";
+
+import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { User, Menu, LogOut, ChevronDownIcon, ChevronUpIcon, Search, Settings } from "lucide-react";
+import { Button } from "./UI/Button";
 
-type NavLink =
-  | { type: "link"; href: string; label: string; icon: React.ReactNode }
-  | { type: "action"; label: string; icon: React.ReactNode; action: () => void }
-  | { type: "label"; label: string };
+export default function Header(){
+    const [open, setOpen] = useState(false);
+      const { user, logout } = useAuth();
+      const { isThemeLoaded } = useTheme();
+      const router = useRouter();
+      const dropdownRef = useRef<HTMLDivElement>(null);
 
-export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
-  const { theme, isThemeLoaded } = useTheme();
-  const router = useRouter();
+    //   fermeture du menu déroulant lorsque l'utilisateur clique en dehors
 
-  const handleLogout = () => {
-    logout();
-    router.replace("/login");
-  };
+        useEffect(()=>{
+            const handleClickOutside = (event: MouseEvent)=>{
+                if(dropdownRef.current && !dropdownRef.current.contains(event.target as Node)){
+                    setOpen(false);
+                }
+            };
+            document.addEventListener("mousedown", handleClickOutside);
+            return()=> document.removeEventListener("mousedown", handleClickOutside);
+        },[]);
 
-  const isAdmin = user?.roles.includes("ROLE_ADMIN");
+      const handleLogout = () => {
+        logout();
+        router.replace("/login");
+      };
 
-  if (!isThemeLoaded) return null;
+      if (!isThemeLoaded) return null;
 
-  const privateLinks: NavLink[] = [
-    { type: "link", href: "/dashboard", label: "Dashboard", icon: <LayoutDashboardIcon size={18} /> },
-    { type: "link", href: "/profile", label: "Mon profil", icon: <UserPen size={18} /> },
-    ...(isAdmin
-      ? [{ type: "link", href: "/admin", label: "Admin", icon: <Settings size={18} /> } as NavLink]
-      : []),
-    { type: "label", label: user?.username ?? "" },
-    {
-      type: "action",
-      label: "Se déconnecter",
-      icon: <LogOut size={18} />,
-      action: handleLogout,
-    },
-  ];
+      const handleProfileClick = () => {
+        setOpen(false);
+        router.push("/profile");
+      };
 
-  const publicLinks: NavLink[] = [
-    { type: "link", href: "/login", label: "Se connecter", icon: <LogIn size={18} /> },
-    { type: "link", href: "/register", label: "S'inscrire", icon: <UserPlus size={18} /> },
-  ];
+      const handleSettingsClick = () => {
+        setOpen(false);
+        router.push("/settings");
+      };
 
-  const links = isAuthenticated ? privateLinks : publicLinks;
-
-  const mobileNavVariants: Variants = {
-    closed: { opacity: 0, height: 0, transition: { duration: 0.3 } },
-    open: { opacity: 1, height: "auto", transition: { duration: 0.3 } },
-  };
-
-  const renderLink = (link: NavLink, index: number) => {
-    switch (link.type) {
-      case "link":
-        return (
-          <Link
-            key={index}
-            href={link.href}
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 hover:text-primary transition-colors"
-          >
-            {link.icon}
-            <span>{link.label}</span>
-          </Link>
-        );
-
-      case "action":
-        return (
-          <button
-            key={index}
-            onClick={() => {
-              link.action();
-              setIsOpen(false);
-            }}
-            className="flex items-center gap-2 hover:text-primary transition-colors"
-          >
-            {link.icon}
-            {link.label}
-          </button>
-        );
-
-      case "label":
-        return (
-          <span
-            key={index}
-            className="text-sm text-gray-500 dark:text-gray-400"
-          >
-            {link.label}
-          </span>
-        );
-    }
-  };
-
-  return (
-    <header
-      className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark border-b border-primary shadow-md fixed w-full z-10"
-    >
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/">
-          <Image
-            src={theme === "dark" ? "/logo-light.png" : "/logo-dark.png"}
-            alt="logo"
-            width={200}
-            height={50}
-            className="cursor-pointer"
-          />
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8">
-          {links.map(renderLink)}
-          <ThemeToggle />
-        </nav>
-
-        <button
-          className="md:hidden p-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-          onClick={() => setIsOpen(!isOpen)}
+    return(
+        <header
+        className="h-16 border-b border-border bg-background flex items-center justify-between px-6"
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+            {/* partie gauche */}
+            <div className="flex items-center gap-3">
+                <Button className="md:hidden"><Menu size={18}/></Button>
+                <span className="text-primary font-semibold">Dashboard</span>
+            </div>
 
-      <motion.nav
-        className="md:hidden flex flex-col gap-3 px-6 pt-3 pb-6 bg-background-light dark:bg-background-dark overflow-hidden border-t border-gray-300 dark:border-gray-700"
-        initial="closed"
-        animate={isOpen ? "open" : "closed"}
-        variants={mobileNavVariants}
-      >
-        {links.map(renderLink)}
-        <div className="flex justify-center mt-2 mb-2">
-          <ThemeToggle />
-        </div>
-      </motion.nav>
-    </header>
-  );
+            {/* partie centrale */}
+            <div className="flex-1 max-w-md mx-8 hidden md:block">
+                <div className="relative group">
+                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40 group-focus-within:text-primary transition-colors"/>
+                <input
+                    type="text"
+                    placeholder="Rechercher..."
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-background/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                />
+                </div>
+            </div>
+            {/* partie droite */}
+            <div className="flex items-center gap-3">
+                <ThemeToggle/>
+            <div className="relative" ref={dropdownRef}>
+            <Button
+            onClick={()=>setOpen(!open)}
+            className="flex items-center gap-2 px-3 py-1 rounded-lg hover:bg-primary/10 cursor-pointer"
+            aria-expanded={open}
+            aria-haspopup="true"
+            >
+                <User size={18}/>
+                <span className="text-sm font-medium">{user?.username || "Utilisateur"}</span>
+                {open ? <ChevronUpIcon size={18}/> : <ChevronDownIcon size={18}/>}
+            </Button>
+            {open && (
+                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-custom z-50">
+                    <button 
+                    className="w-full flex gap-2 text-left px-4 py-2 hover:bg-primary/10"
+                    onClick={handleProfileClick}
+                    >
+                        <User size={18}/>
+                        <span className="text-xs">Mon profil</span>
+                        </button>
+
+                        <button
+                        className="w-full flex gap-2 text-left px-4 py-2 hover:bg-primary/10"
+                        onClick={handleSettingsClick}
+                        >
+                        <Settings size={18}/>
+                        <span className="text-xs">Paramètres</span>
+                        </button>
+
+                        <hr className="my-1 border-border" />
+
+                        <button
+                        onClick={handleLogout}
+                        className="w-full flex gap-2 text-left px-4 py-2 font-semibold hover:bg-primary/10 hover:text-red-500"
+                        >
+                        <LogOut size={18}/>
+                        <span className="text-xs">
+                        Déconnexion</span>
+                        </button>
+                </div>
+            )}
+            </div>
+                </div>
+        </header>
+    );
 }

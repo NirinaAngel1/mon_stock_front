@@ -1,37 +1,31 @@
+const { DEFAULT_CIPHERS } = require('tls');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx}",   // pour App Router
     "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Utilisation du mode sombre basé sur une classe
   theme: {
     extend: {
       colors: {
+        background: 'hsl(var(--background))',    
+        foreground: 'hsl(var(--foreground))',
         primary: {
-          light: '#6C43FF',
-          DEFAULT: '#37157B',
-          dark: '#1b0d3f',
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
         },
-        text: {
-          light: '#2D2D2D',
-          DEFAULT:'#CCCCCC',
-          dark:'#F3F3F3',
-        },
-        background: {
-          light: '#EFE7FF',
-          dark: '#1b0d3f',
-        },
-        boxShadow: {
-        'light': '0 4px 6px rgba(0,0,0,0.1)',
-        'dark': '0 4px 6px rgba(255,255,242,0.8)',
-        },
-        accent:{
-          lime : '#A3E635',
-          red : '#F87171',
-          blue : '#60A5FA',
+        border: 'hsl(var(--border))',
+        accent: {
+          lime:'#A3E635',
+          red: '#F87171',
+          blue: '#60A5FA',
         }
-      }
+      },
+      boxShadow: {
+        'custom':'0 4px 12px rgba(0, 0, 0, 0.08)',
+      },
     },
   },
-  darkMode: 'class',
 };

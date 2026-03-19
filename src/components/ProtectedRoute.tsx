@@ -11,32 +11,37 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({children, allowedRoles}: ProtectedRouteProps) {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, loading } = useAuth();
     const router = useRouter();
-    const [checkingAuth, setCheckingAuth] = useState(true);
 
     useEffect(() => {
         //Changement de l'état auth
-        if(isAuthenticated){
-            //vérification des rôles
-            if(allowedRoles && user){
-                const hasRole = user.roles.some((role => allowedRoles.includes(role)));
+        if(!loading){
+            if(!isAuthenticated){
+                router.replace("/login");
+            }else if(allowedRoles && user){
+                const hasRole = user.roles.some(role => allowedRoles.includes(role));
                 if(!hasRole){
-                    router.push("/login");//redirection si rôle non autorisé
+                    router.replace("/login");
                 }
             }
-            setCheckingAuth(false);
-        }else{
-            //Redirection vers la page de login si non authentifié
-            setTimeout(()=>{
-                router.push("/login");
-            }, 100);
         }
-    },[isAuthenticated, user, allowedRoles, router]);
+    },[loading, isAuthenticated, user, allowedRoles, router]);
 
     //Loader pendant la vérification de l'authentification
-    if(checkingAuth || !isAuthenticated){
+    if(loading){
         return <Loader />;
+    }
+
+    if(!isAuthenticated){
+        return null; //ou un message d'erreur
+    }
+
+    if(allowedRoles && user){
+        const hasRole = user.roles.some(role => allowedRoles.includes(role));
+        if(!hasRole){
+            return null; //ou un message d'erreur
+        }
     }
 
     return <>{children}</>;

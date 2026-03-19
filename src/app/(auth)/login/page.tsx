@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "../../services/api";
-import Loader from "@/components/Loader";
 import {useAuth} from "@/context/AuthContext";
 
 export default function LoginPage() {
@@ -29,7 +28,7 @@ export default function LoginPage() {
             });
 
             await login(response.data.token, response.data.refresh_token);
-            router.push("/dashboard");
+            router.push("/");
         } catch (error) {
             console.error(error);
             setErrorsMessage("Échec de la connexion.");
