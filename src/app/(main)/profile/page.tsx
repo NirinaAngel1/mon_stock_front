@@ -14,7 +14,7 @@ export default function ProfilePage() {
                     <h1 className="text-2xl font-bold">
                         Mon profil
                     </h1>
-                    <p className="text-md dark:text-slate-400 light:text-slate-500 mt-2">
+                    <p className="text-sm font-medium">
                         Gérez vos informations personnelles et vos paramètres.
                     </p>
                 </div>
