@@ -18,6 +18,8 @@
   --primary: 255 60% 45%;
   --primary-foreground: 0 0% 100%;
   --border:220 15% 85%;
+  --destructive:0 84% 60%;
+  --destructive-foreground:0 0% 100%;
   }
 
   .dark {
@@ -26,6 +28,8 @@
   --primary: 255 85% 75%;
   --primary-foreground: 240 15% 10%;
   --border:240 10% 15%;
+  --destructive:0 62% 30%;
+  --destructive-foreground: 210 20% 90%;
   }
 }
 

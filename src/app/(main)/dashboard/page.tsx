@@ -1,10 +1,12 @@
 'use client';
 
 import React, { use, useEffect, useState } from "react";
-import { getDashboard, getMonthlyStats } from "@/app/services/dashboardService";
+import { getDashboard, getMonthlyStats, getCriticalsProducts } from "@/app/services/dashboardService";
 import Loader from "@/components/Loader";
 import SummaryCard from "@/components/dashboard/SummaryCard";
 import MonthlyChart from "@/components/dashboard/MonthlyChart";
+import CriticalProduct from "@/components/dashboard/CriticalProduct";
+import CriticalProductsModal from "@/components/dashboard/CriticalProductsModal";
 import RecentMovements from "@/components/dashboard/RecentMovements";
 
 export default function DashboardPage() {
@@ -13,12 +15,15 @@ export default function DashboardPage() {
     const [monthly, setMonthly]=useState<any>([]);
     const [loading, setLoading]=useState(true);
     const [movements, setMovements]=useState([]);
+    const [criticalProducts, setCriticalProducts]=useState([]);
+    const [isModalOpen, setIsModalOpen]=useState(false);
 
     useEffect(()=>{
         const fetchDashboard = async ()=>{
             try{
                 const dashboardData = await getDashboard();
                 const stats = await getMonthlyStats();
+                const critical = await getCriticalsProducts();
 
                 const formattedMonthly = stats.labels.map((label: string, index: number )=>({
                     month:label,
@@ -27,7 +32,8 @@ export default function DashboardPage() {
 
                 setData(dashboardData.summary);
                 setMonthly(formattedMonthly);
-                setMovements(dashboardData.lastMovements)
+                setMovements(dashboardData.lastMovements);
+                setCriticalProducts(critical);
             }catch(error){
                 console.error('Erreur Dashboard : ', error)
             }finally{
@@ -37,6 +43,8 @@ export default function DashboardPage() {
 
         fetchDashboard();
     },[])
+
+    console.log(criticalProducts, data, movements, monthly);
 
     if (loading){
         return <Loader/>
@@ -55,7 +63,15 @@ export default function DashboardPage() {
         </div>
          <div className="space-y-6">
             <SummaryCard data={data} />
-            <RecentMovements data={movements}/>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                    <RecentMovements data={movements}/>
+                </div>
+                <div className="lg:col-span-">
+                    <CriticalProduct products={criticalProducts} onViewAll={()=>setIsModalOpen(true)}/>
+                </div>
+            </div>
+                <CriticalProductsModal products={criticalProducts} isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} />
             <MonthlyChart data={monthly} />
         </div>
         </>

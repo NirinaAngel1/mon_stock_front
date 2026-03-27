@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { User, Menu, LogOut, ChevronDownIcon, ChevronUpIcon, Search, Settings } from "lucide-react";
 import { Button } from "./UI/Button";
 
@@ -14,10 +14,18 @@ export default function Header(){
       const { user, logout } = useAuth();
       const { isThemeLoaded } = useTheme();
       const router = useRouter();
+      const pathname = usePathname();
+      const searchParams = useSearchParams();
+
+      const [searchValue, setSearchValue] = useState(searchParams.get("q") || "");
+
       const dropdownRef = useRef<HTMLDivElement>(null);
 
-    //   fermeture du menu déroulant lorsque l'utilisateur clique en dehors
+      useEffect(()=>{
+        setSearchValue(searchParams.get("q") || "");
+      }, [searchParams]);
 
+    //   fermeture du menu déroulant lorsque l'utilisateur clique en dehors
         useEffect(()=>{
             const handleClickOutside = (event: MouseEvent)=>{
                 if(dropdownRef.current && !dropdownRef.current.contains(event.target as Node)){
@@ -45,6 +53,31 @@ export default function Header(){
         router.push("/settings");
       };
 
+    //   Gestion de la recherche
+
+    const handleSearch = (value:string) => {
+        setSearchValue(value);
+
+        const params = new URLSearchParams(searchParams);
+        if(value){
+            params.set('q',value);
+        }else{
+            params.delete('q');
+        }
+
+        // detection de la cible (product ou category)
+
+        let targetPath = pathname;
+
+        if(pathname === "/" || pathname==="/dashboard"){
+            targetPath = "/product";
+        }
+
+        router.push(`${targetPath}?${params.toString()}`);
+    };
+
+
+
     return(
         <header
         className="h-16 border-b border-border bg-background flex items-center justify-between px-6"
@@ -62,6 +95,8 @@ export default function Header(){
                 <input
                     type="text"
                     placeholder="Rechercher..."
+                    value={searchValue}
+                    onChange={(e)=>handleSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 rounded-lg border border-border bg-background/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
                 </div>

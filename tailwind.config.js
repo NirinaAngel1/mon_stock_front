@@ -16,6 +16,10 @@ module.exports = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        destructive:{
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground:'hsl(var(--destructive-foreground))',
+        },
         border: 'hsl(var(--border))',
         accent: {
           lime:'#A3E635',
