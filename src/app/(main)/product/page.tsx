@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { getAllProducts, getAllCategories, createProduct } from "@/app/services/productService";
+import { getAllProducts, getAllCategories, createProduct, deleteProduct } from "@/app/services/productService";
 import Loader from "@/components/Loader";
 import ProductTable from "../../../components/product/ProductTable";
 import { Plus, ChevronLeft, ChevronRight, SearchX } from "lucide-react";
@@ -15,6 +15,8 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<any>(null);
 
   const SearchParams = useSearchParams();
   const router = useRouter();
@@ -75,6 +77,23 @@ export default function ProductPage() {
     }
   };
 
+  const confirmDeleteProduct = (product:any)=>{
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  }
+
+  const handleDeleteProduct = async ()=>{
+    if(!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete.id);
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+      fetchAll();
+    } catch (error) {
+      alert('Erreur lors de la suppression du produit');
+    }
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -109,7 +128,7 @@ export default function ProductPage() {
       <div className="bg-background border border-border rounded-2xl shadow-custom overflow-hidden">
         {products.length > 0 ? (
           <>
-            <ProductTable products={products} />
+            <ProductTable products={products} onDeleteClick={confirmDeleteProduct} />
 
             {/* Pagination - Utilisation des clés snake_case de ton API */}
             {metadata && metadata.totalPages > 1 && (
@@ -153,7 +172,8 @@ export default function ProductPage() {
           </div>
         )}
         </div>
-        <div className="flex items-center justify-center">
+
+        {/* modale creation */}
         <BaseModal
         isOpen={isModalOpen}
         onClose={()=>setIsModalOpen(false)}
@@ -164,7 +184,19 @@ export default function ProductPage() {
             onSubmit={handleCreateProduct}
             />
         </BaseModal>
-        </div>
-    </div>
+
+        {/* modale suppression */}
+        <BaseModal
+        isOpen={isDeleteModalOpen}
+        onClose={()=>setIsDeleteModalOpen(false)}
+        title="Confirmer la suppression"
+        >
+            <p>Êtes-vous sûr de vouloir supprimer le produit <span className="font-bold">{productToDelete?.name}</span> ? Cette action est irréversible.</p>
+            <div className="flex justify-end gap-4 mt-6">
+                <button onClick={()=>setIsDeleteModalOpen(false)} className="px-4 py-2 bg-background border border-border rounded-lg hover:bg-foreground/5 transition-colors">Annuler</button>
+                <button onClick={handleDeleteProduct} className="px-4 py-2 bg-destructive text-white rounded-lg hover:opacity-90 transition-opacity">Supprimer</button>
+                </div>
+        </BaseModal>
+  </div>
   );
 }

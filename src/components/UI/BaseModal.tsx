@@ -23,15 +23,16 @@ export default function BaseModal({isOpen, onClose, title, children}:BaseModalPr
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={onClose}
-                    className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+                    className="fixed inset-0 bg-background/80 backdrop-blur-sm"
                     >
-
-                        {/* fenêtre modale */}
+                    </motion.div>
+                    {/* fenêtre modale */}
                         <motion.div
                         initial={{ opacity: 0 , scale: 0.95, y: 20 }}
                         animate={{ opacity: 1 , scale: 1, y: 0 }}
                         exit={{ opacity: 0 , scale: 0.95, y: 20}}
-                        className="relative w-full max-w-lg overflow-hidden bg-background border border-broder rounded-2xl shadow-2xl z-10"
+                        className="relative w-full max-w-3xl overflow-hidden bg-background border border-border z-10 rounded-2xl shadow-2xl flex flex-col"
+                        onClick={(e)=> e.stopPropagation()}
                         >
                             
                             {/* en-tête */}
@@ -46,7 +47,6 @@ export default function BaseModal({isOpen, onClose, title, children}:BaseModalPr
                             {/* contenu */}
                             <div className="p-6">{children}</div>
                         </motion.div>
-                    </motion.div>
                 </div>
             )}
         </AnimatePresence>

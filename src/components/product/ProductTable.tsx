@@ -1,15 +1,11 @@
 import { Edit2, Trash2, Eye, Package } from "lucide-react";
 
-interface Product {
-    id: number;
-    name: string;
-    category?: {name: string};
-    currentStock: number;
-    lowStockThreshold: number;
-    price: number;
+interface ProductTableProps {
+    products: any[];
+    onDeleteClick: (product: any) => void;
 }
 
-export default function ProductTable({ products }: {products : Product[]}){
+export default function ProductTable({ products, onDeleteClick }: ProductTableProps) {
     return (
         <div className="overflow-x-auto">
             <>{console.log(products)}</>
@@ -59,7 +55,7 @@ export default function ProductTable({ products }: {products : Product[]}){
                                         <button className="p-2 hover:bg-blue-500/10 text-blue-500 rounded-md" title="Modifier">
                                             <Edit2 size={16} />
                                         </button>
-                                        <button className="p-2 hover:bg-destructive/10 text-destructive rounded-md" title="Supprimer">
+                                        <button onClick={() => onDeleteClick(product)} className="p-2 hover:bg-destructive/10 text-destructive rounded-md" title="Supprimer">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
