@@ -8,6 +8,7 @@ import ProductTable from "../../../components/product/ProductTable";
 import { Plus, ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 import BaseModal from "@/components/UI/BaseModal";
 import ProductForm from "@/components/product/ProductForm";
+import { toast } from "react-hot-toast";
 
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -73,7 +74,8 @@ export default function ProductPage() {
         setIsModalOpen(false);
         fetchAll();
     } catch (error) {
-        alert('Erreur lors de la création du produit');
+        console.error('Problème lors de la création : ', error);
+        toast.error('Impossible de créer le produit. Veuillez réessayer.');
     }
   };
 
@@ -90,7 +92,8 @@ export default function ProductPage() {
       setProductToDelete(null);
       fetchAll();
     } catch (error) {
-      alert('Erreur lors de la suppression du produit');
+      console.error('Problème lors de la suppression : ', error);
+      toast.error("Impossible de supprimer ce produit. Vérifiez s'il n'est pas lié à des commandes.");
     }
   };
 
