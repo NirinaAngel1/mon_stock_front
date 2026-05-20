@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { getAllProducts, getAllCategories, createProduct, deleteProduct } from "@/app/services/productService";
+import { getAllProducts, getAllCategories, createProduct, deleteProduct, updateProduct } from "@/app/services/productService";
 import Loader from "@/components/Loader";
 import ProductTable from "../../../components/product/ProductTable";
-import { Plus, ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, SearchX, Package } from "lucide-react";
 import BaseModal from "@/components/UI/BaseModal";
 import ProductForm from "@/components/product/ProductForm";
 import { toast } from "react-hot-toast";
@@ -18,6 +18,10 @@ export default function ProductPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<any>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [productToView, setProductToView] = useState<any>(null);
 
   const SearchParams = useSearchParams();
   const router = useRouter();
@@ -97,6 +101,30 @@ export default function ProductPage() {
     }
   };
 
+  const handleEditProduct = (product:any)=>{
+    setProductToEdit(product);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateProduct = async (formData:any)=>{
+    try{
+      await updateProduct(productToEdit.id, formData);
+      setIsEditModalOpen(false);
+      setProductToEdit(null);
+      fetchAll();
+    }catch(error){
+      console.error('Problème lors de la mise à jour : ', error);
+      toast.error("Impossible de mettre à jour ce produit. Veuillez réessayer.");
+    }
+  }
+
+  const handleViewProduct = (product:any)=>{
+    setProductToView(product);
+    setIsViewModalOpen(true);
+  };
+
+
+
   if (loading) return <Loader />;
 
   return (
@@ -131,7 +159,7 @@ export default function ProductPage() {
       <div className="bg-background border border-border rounded-2xl shadow-custom overflow-hidden">
         {products.length > 0 ? (
           <>
-            <ProductTable products={products} onDeleteClick={confirmDeleteProduct} />
+            <ProductTable products={products} onDeleteClick={confirmDeleteProduct} onEditClick={handleEditProduct} onViewClick={handleViewProduct} />
 
             {/* Pagination - Utilisation des clés snake_case de ton API */}
             {metadata && metadata.totalPages > 1 && (
@@ -199,6 +227,63 @@ export default function ProductPage() {
                 <button onClick={()=>setIsDeleteModalOpen(false)} className="px-4 py-2 bg-background border border-border rounded-lg hover:bg-foreground/5 transition-colors">Annuler</button>
                 <button onClick={handleDeleteProduct} className="px-4 py-2 bg-destructive text-white rounded-lg hover:opacity-90 transition-opacity">Supprimer</button>
                 </div>
+        </BaseModal>
+
+                {/* modale edition */}
+        <BaseModal
+        isOpen={isEditModalOpen}
+        onClose={()=>setIsEditModalOpen(false)}
+        title = "Modifier un produit"
+        >
+            <ProductForm 
+            categories={categories}
+            onSubmit={handleUpdateProduct}
+            initialData={productToEdit}
+            />
+        </BaseModal>
+
+        <BaseModal
+        isOpen={isViewModalOpen}
+        onClose={()=>setIsViewModalOpen(false)}
+        title = "Détails du produit"
+        >
+            {productToView && (
+          <div className="space-y-6">
+              <div className="flex items-center gap-4 border-b border-border pb-4">
+                  <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                      <Package size={24} />
+                  </div>
+                  <div>
+                      <h2 className="text-xl font-bold">{productToView.name}</h2>
+                      <p className="text-sm text-foreground/50">{productToView.category?.name || "Sans catégorie"}</p>
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-foreground/[0.02] rounded-xl border border-border">
+                      <p className="text-xs text-foreground/40 uppercase font-semibold">Prix de vente</p>
+                      <p className="text-lg font-bold text-primary">{productToView.price} Ar</p>
+                  </div>
+                  <div className="p-4 bg-foreground/[0.02] rounded-xl border border-border">
+                      <p className="text-xs text-foreground/40 uppercase font-semibold">Stock Actuel</p>
+                      <p className={`text-lg font-bold ${productToView.currentStock <= productToView.lowStockThreshold ? 'text-orange-500' : 'text-green-500'}`}>
+                          {productToView.currentStock} unités
+                      </p>
+                  </div>
+              </div>
+
+              <div>
+                  <p className="text-xs text-foreground/40 uppercase font-semibold mb-2">Description</p>
+                  <p className="text-sm text-foreground/80 bg-foreground/[0.02] p-3 rounded-lg border border-border italic">
+                      {productToView.description || "Aucune description fournie."}
+                  </p>
+              </div>
+
+              <div className="text-[10px] text-foreground/30 text-right">
+                  ID Produit : #{productToView.id}
+              </div>
+          </div>
+      )}
         </BaseModal>
   </div>
   );

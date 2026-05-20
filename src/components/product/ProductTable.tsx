@@ -3,9 +3,11 @@ import { Edit2, Trash2, Eye, Package } from "lucide-react";
 interface ProductTableProps {
     products: any[];
     onDeleteClick: (product: any) => void;
+    onEditClick: (product: any) => void;
+    onViewClick: (product: any) => void;
 }
 
-export default function ProductTable({ products, onDeleteClick }: ProductTableProps) {
+export default function ProductTable({ products, onDeleteClick, onEditClick, onViewClick }: ProductTableProps) {
     return (
         <div className="overflow-x-auto">
             <>{console.log(products)}</>
@@ -49,10 +51,10 @@ export default function ProductTable({ products, onDeleteClick }: ProductTablePr
                                 <td className="px-6 py-4 text-sm font-medium">{product.price} Ar</td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="p-2 hover:bg-primary/10 text-primary rounded-md" title="Voir">
+                                        <button onClick={() => onViewClick(product)} className="p-2 hover:bg-primary/10 text-primary rounded-md" title="Voir">
                                             <Eye size={16} />
                                         </button>
-                                        <button className="p-2 hover:bg-blue-500/10 text-blue-500 rounded-md" title="Modifier">
+                                        <button onClick={() => onEditClick(product)} className="p-2 hover:bg-blue-500/10 text-blue-500 rounded-md" title="Modifier">
                                             <Edit2 size={16} />
                                         </button>
                                         <button onClick={() => onDeleteClick(product)} className="p-2 hover:bg-destructive/10 text-destructive rounded-md" title="Supprimer">

@@ -1,15 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function ProductForm({ onSubmit, categories }: any){
+export default function ProductForm({ onSubmit, categories, initialData }: any){
     const [formData, setFormData] = useState({
-        name:"",
-        price:"",
-        category:"",
-        lowStockThreshold:5,
-        initial_stock:0
+        name:initialData?.name || "",
+        price:initialData?.price || "",
+        category:initialData?.category || "",
+        lowStockThreshold:initialData?.lowStockThreshold || 5,
+        initial_stock:initialData?.initial_stock || 0
     });
+
+    useEffect(()=>{
+        if(initialData){
+            setFormData({
+                name:initialData.name,
+                price:initialData.price,
+                category:initialData.category?.id,
+                lowStockThreshold:initialData.lowStockThreshold,
+                initial_stock:initialData.initial_stock
+            });
+        }
+    }, [initialData]);
 
     const handleSubmit = ( e: React.FormEvent ) => {
         e.preventDefault();
@@ -70,8 +82,9 @@ export default function ProductForm({ onSubmit, categories }: any){
                     <input 
                     type="number"
                     value={formData.initial_stock}
+                    disabled
                     onChange={(e)=>setFormData({...formData, initial_stock:parseInt(e.target.value)})}
-                    className="w-full p-2.5 bg-foreground/5 border border-border rounded-xl outline-none"
+                    className="w-full p-2.5 bg-grey-200 border border-border rounded-xl outline-none"
                     />
                 </div>
                 <div>
