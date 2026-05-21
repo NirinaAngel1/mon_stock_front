@@ -28,6 +28,7 @@ export default function LoginPage() {
             });
 
             await login(response.data.token, response.data.refresh_token);
+            console.log("token : ",response.data.token,"refresh : ", response.data.refresh_token);
             router.push("/");
         } catch (error) {
             console.error(error);
