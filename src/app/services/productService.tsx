@@ -29,3 +29,18 @@ export const deleteProduct = async (id:number) => {
     const res = await api.delete(`/products/${id}`);
     return res.data;
 }
+
+export const adjustStock = async(adjustmentData:{
+    productId: number,
+    quantity: number,
+    reason: string,
+    type:'IN' | 'OUT' | 'ADJUSTMENT'
+}) => {
+    try{
+        const res = await api.post('/stock/adjust', adjustmentData);
+        return res.data;
+    }catch(error:any){
+        const message = error.response?.data?.message || 'Erreur lors de l\'ajustement du stock';
+        throw new Error(message);
+    }
+}

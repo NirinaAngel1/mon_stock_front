@@ -1,16 +1,16 @@
-import { Edit2, Trash2, Eye, Package } from "lucide-react";
+import { Edit2, Trash2, Eye, Package, RefreshCw } from "lucide-react";
 
 interface ProductTableProps {
     products: any[];
     onDeleteClick: (product: any) => void;
     onEditClick: (product: any) => void;
     onViewClick: (product: any) => void;
+    onAdjustClick: (product: any) => void;
 }
 
-export default function ProductTable({ products, onDeleteClick, onEditClick, onViewClick }: ProductTableProps) {
+export default function ProductTable({ products, onDeleteClick, onEditClick, onViewClick, onAdjustClick }: ProductTableProps) {
     return (
         <div className="overflow-x-auto">
-            <>{console.log(products)}</>
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="border-b border-border bg-foreground/[0.20] text-xs uppercase text-foreground/50">
@@ -59,6 +59,9 @@ export default function ProductTable({ products, onDeleteClick, onEditClick, onV
                                         </button>
                                         <button onClick={() => onDeleteClick(product)} className="p-2 hover:bg-destructive/10 text-destructive rounded-md" title="Supprimer">
                                             <Trash2 size={16} />
+                                        </button>
+                                        <button onClick={() => onAdjustClick(product)} className="p-2 hover:bg-green-500/10 text-green-500 rounded-md" title="Ajuster le stock">
+                                            <RefreshCw size={16} />
                                         </button>
                                     </div>
                                 </td>

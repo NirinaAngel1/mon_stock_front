@@ -9,6 +9,7 @@ import { Plus, ChevronLeft, ChevronRight, SearchX, Package } from "lucide-react"
 import BaseModal from "@/components/UI/BaseModal";
 import ProductForm from "@/components/product/ProductForm";
 import { toast } from "react-hot-toast";
+import StockAdjustmentModal from "@/components/stock/StockAdjustmentModal";
 
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -22,6 +23,8 @@ export default function ProductPage() {
   const [productToEdit, setProductToEdit] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [productToView, setProductToView] = useState<any>(null);
+  const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+  const [productToAdjust, setProductToAdjust] = useState<any>(null);
 
   const SearchParams = useSearchParams();
   const router = useRouter();
@@ -123,6 +126,10 @@ export default function ProductPage() {
     setIsViewModalOpen(true);
   };
 
+  const handleAdjustStock = (product:any)=>{
+    setProductToAdjust(product);
+    setIsAdjustModalOpen(true);
+  };
 
 
   if (loading) return <Loader />;
@@ -159,7 +166,12 @@ export default function ProductPage() {
       <div className="bg-background border border-border rounded-2xl shadow-custom overflow-hidden">
         {products.length > 0 ? (
           <>
-            <ProductTable products={products} onDeleteClick={confirmDeleteProduct} onEditClick={handleEditProduct} onViewClick={handleViewProduct} />
+            <ProductTable 
+            products={products}
+            onDeleteClick={confirmDeleteProduct}
+            onEditClick={handleEditProduct}
+            onViewClick={handleViewProduct}
+            onAdjustClick={handleAdjustStock} />
 
             {/* Pagination - Utilisation des clés snake_case de ton API */}
             {metadata && metadata.totalPages > 1 && (
@@ -242,6 +254,7 @@ export default function ProductPage() {
             />
         </BaseModal>
 
+              {/* modale details */}
         <BaseModal
         isOpen={isViewModalOpen}
         onClose={()=>setIsViewModalOpen(false)}
@@ -285,6 +298,14 @@ export default function ProductPage() {
           </div>
       )}
         </BaseModal>
+
+        {/* modale ajustement stock */}
+        <StockAdjustmentModal
+        isOpen={isAdjustModalOpen}
+        onClose={()=>{setIsAdjustModalOpen(false); setProductToAdjust(null);}}
+        product={productToAdjust}
+        onSuccess={fetchAll}
+        />
   </div>
   );
 }
